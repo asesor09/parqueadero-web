@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Mapa del Parqueadero - Airport Parking{% endblock %}
+
+{% block content %}
+<style>
+    /* Estilos del buscador */
+    .buscador-contenedor {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .buscador-input {
+        width: 100%;
+        max-width: 400px;
+        padding: 12px 20px;
+        font-size: 1.1rem;
+        border: 2px solid #bdc3c7;
+        border-radius: 25px;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+    
+    .buscador-input:focus {
+        border-color: #3498db;
+    }
+
+    /* Efecto visual al buscar */
+    .celda {
+        transition: opacity 0.3s, transform 0.2s;
+    }
+    .celda.oculta {
+        opacity: 0.2; /* Oscurece las celdas que no coinciden */
+        transform: scale(0.95);
+    }
+    .celda.resaltada {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(52, 152, 219, 0.6);
+        border-color: #3498db;
+    }
+</style>
+
+<header class="cabecera">
+    <h1>Estado del Parqueadero</h1>
+    
+    <!-- Barra de Búsqueda -->
+    <div class="buscador-contenedor">
+        <input type="text" id="buscadorPlacas" class="buscador-input" placeholder="🔍 Buscar por placa (Ej: ABC)..." autocomplete="off">
+    </div>
+
+    <div class="leyenda">
+        <span class="indicador libre">Libre</span>
+        <span class="indicador ocupada">Ocupada</span>
+    </div>
+</header>
+
+<div class="cuadricula-parqueadero">
+    {% for celda in celdas %}
+        <div class="celda {{ celda.estado }}" id="celda-{{ celda.codigo_celda }}">
+            <h2>{{ celda.codigo_celda }}</h2>
+            {% if celda.estado == 'ocupada' %}
+                <!-- La clase 'matricula-texto' nos ayudará a buscar con JavaScript -->
+                <p class="matricula matricula-texto">{{ celda.matricula }}</p>
+            {% else %}
+                <p class="estado-texto">Disponible</p>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Lógica del buscador instantáneo -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputBuscador = document.getElementById('buscadorPlacas');
+        const celdas = document.querySelectorAll('.celda');
+
+        inputBuscador.addEventListener('keyup', function() {
+            // Convertimos a mayúsculas y quitamos espacios para evitar errores de tipeo
+            const textoBuscado = this.value.toUpperCase().trim();
+
+            celdas.forEach(celda => {
+                const elementoMatricula = celda.querySelector('.matricula-texto');
+                const placa = elementoMatricula ? elementoMatricula.textContent.toUpperCase() : "";
+
+                if (textoBuscado === "") {
+                    // Si el buscador está vacío, restaurar todas las celdas a la normalidad
+                    celda.classList.remove('oculta', 'resaltada');
+                } else if (placa.includes(textoBuscado)) {
+                    // Si la placa coincide con lo escrito, resaltarla
+                    celda.classList.remove('oculta');
+                    celda.classList.add('resaltada');
+                } else {
+                    // Si no coincide o está vacía, oscurecerla
+                    celda.classList.remove('resaltada');
+                    celda.classList.add('oculta');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

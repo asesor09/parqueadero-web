@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar Ingreso - Airport Parking{% endblock %}
+
+{% block content %}
+<style>
+    .formulario-contenedor { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    .formulario-contenedor h1 { text-align: center; margin-bottom: 20px; color: #2c3e50; }
+    label { display: block; margin-top: 15px; font-weight: bold; color: #34495e; }
+    input, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    .btn-guardar { width: 100%; background-color: #2ecc71; color: white; border: none; padding: 12px; margin-top: 25px; border-radius: 4px; font-size: 1.1rem; cursor: pointer; font-weight: bold; }
+    .btn-guardar:hover { background-color: #27ae60; }
+</style>
+
+<div class="formulario-contenedor">
+    <h1>Ingreso de Vehículo</h1>
+    <form method="POST" action="/registro">
+        
+        <label for="matricula">Matrícula</label>
+        <input type="text" id="matricula" name="matricula" placeholder="Ej: ABC-123" required>
+        
+        <label for="marca">Marca y Modelo (Opcional)</label>
+        <input type="text" id="marca" name="marca" placeholder="Ej: Toyota Corolla">
+        
+        <label for="color">Color (Opcional)</label>
+        <input type="text" id="color" name="color" placeholder="Ej: Rojo">
+        
+        <label for="fecha_recepcion">Fecha y Hora de Recepción (Aeropuerto)</label>
+        <input type="datetime-local" id="fecha_recepcion" name="fecha_recepcion" required>
+        
+        <label for="fecha_entrega">Fecha y Hora de Entrega Programada</label>
+        <input type="datetime-local" id="fecha_entrega" name="fecha_entrega" required>
+        
+        <label for="id_celda">Asignar Celda en Parqueadero</label>
+        <select id="id_celda" name="id_celda" required>
+            <option value="" disabled selected>-- Seleccione una celda libre --</option>
+            {% for celda in celdas_libres %}
+                <option value="{{ celda.id_celda }}">{{ celda.codigo_celda }}</option>
+            {% endfor %}
+        </select>
+        
+        <button type="submit" class="btn-guardar">Guardar Ingreso</button>
+    </form>
+</div>
+{% endblock %}

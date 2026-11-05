@@ -1,0 +1,86 @@
+/* Reseteo básico y tipografía */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f7f6;
+    padding: 20px;
+}
+
+/* Estilos de la cabecera y leyenda */
+.cabecera {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.leyenda {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.indicador {
+    padding: 5px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    color: white;
+}
+
+/* Sistema de grilla (CSS Grid) para las celdas */
+.contenedor-mapa {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.cuadricula-parqueadero {
+    display: grid;
+    /* Crea columnas responsivas que se ajustan al tamaño de la pantalla (PC o celular) */
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+}
+
+/* Diseño individual de cada celda */
+.celda {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    color: white;
+    transition: transform 0.2s;
+}
+
+.celda:hover {
+    transform: scale(1.05);
+}
+
+.celda h2 {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+.matricula, .estado-texto {
+    font-size: 0.9rem;
+    font-weight: bold;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* Colores dinámicos basados en el estado */
+.libre {
+    background-color: #2ecc71; /* Verde */
+    border: 2px solid #27ae60;
+}
+
+.ocupada {
+    background-color: #e74c3c; /* Rojo */
+    border: 2px solid #c0392b;
+}
