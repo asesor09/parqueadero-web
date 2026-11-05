@@ -179,5 +179,53 @@ def instalar_base_datos():
         return "<h1>¡Éxito! Base de datos instalada.</h1><br><a href='/'>Ir al mapa del parqueadero</a>"
     except Exception as e:
         return f"<h1>Error al instalar:</h1><p>{e}</p>"
+# ==========================================
+# INICIALIZACIÓN AUTOMÁTICA AL ARRANCAR
+# ==========================================
+with app.app_context():
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Crear tablas solo si no existen (seguro para producción)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS celdas (
+                id_celda SERIAL PRIMARY KEY,
+                codigo_celda VARCHAR(10) UNIQUE NOT NULL,
+                estado VARCHAR(15) DEFAULT 'libre'
+            );
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS vehiculos (
+                matricula VARCHAR(10) PRIMARY KEY,
+                marca VARCHAR(50),
+                color VARCHAR(30)
+            );
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS movimientos (
+                id_movimiento SERIAL PRIMARY KEY,
+                matricula VARCHAR(10) REFERENCES vehiculos(matricula),
+                id_celda INT REFERENCES celdas(id_celda),
+                fecha_hora_recepcion TIMESTAMP NOT NULL,
+                fecha_hora_entrega TIMESTAMP NOT NULL,
+                estado_movimiento VARCHAR(20) DEFAULT 'en_parqueadero'
+            );
+        """)
+        
+        # Verificar si la tabla celdas está vacía para insertar las celdas iniciales
+        cur.execute("SELECT COUNT(*) FROM celdas;")
+        if cur.fetchone()[0] == 0:
+            for i in range(1, 11):
+                cur.execute("INSERT INTO celdas (codigo_celda) VALUES (%s) ON CONFLICT DO NOTHING;", (f"A-{i:02d}",))
+                cur.execute("INSERT INTO celdas (codigo_celda) VALUES (%s) ON CONFLICT DO NOTHING;", (f"B-{i:02d}",))
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        print("Base de datos verificada e inicializada correctamente.")
+    except Exception as e:
+        print(f"Nota en la inicialización automática: {e}")
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5050)
