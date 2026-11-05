@@ -1,17 +1,23 @@
 import psycopg2
+import os
 
 # ==========================================
-# 1. PON AQUÍ LOS DATOS DE TU BASE DE DATOS
+# CONFIGURACIÓN DE BASE DE DATOS LOCAL
 # ==========================================
 DB_HOST = "localhost"
-DB_NAME = "parqueadero_db" # El nombre de la base de datos que ya tienes
-DB_USER = "postgres"       # Normalmente es postgres
-DB_PASS = "nuenama159"  # Escribe aquí la contraseña de tu PostgreSQL
+DB_NAME = "parqueadero_db" 
+DB_USER = "postgres"       
+DB_PASS = "nuenama159"  
 
 def inicializar_base_de_datos():
     try:
-        # Conectar a PostgreSQL
-        conn = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
+        # Detecta automáticamente si está en la nube o usa tu PC
+        url_nube = os.environ.get("DATABASE_URL")
+        if url_nube:
+            conn = psycopg2.connect(url_nube)
+        else:
+            conn = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
+            
         cur = conn.cursor()
 
         print("Conectado. Creando las tablas...")

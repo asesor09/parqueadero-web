@@ -15,7 +15,7 @@ DB_USER = "postgres"
 DB_PASS = "nuenama159"
 
 def get_db_connection():
-    # Detecta si está en la nube (Render) o en tu PC (Local)
+    # Detecta automáticamente si está en la nube o usa tu PC con la clave "nuenama159"
     url_nube = os.environ.get("DATABASE_URL")
     if url_nube:
         return psycopg2.connect(url_nube)
@@ -100,7 +100,6 @@ def listado_entregas():
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     
-    # Busca los vehículos que deben entregarse HOY y siguen en el parqueadero
     query = """
         SELECT m.id_movimiento, m.matricula, v.marca, c.codigo_celda, m.fecha_hora_entrega
         FROM movimientos m
@@ -122,20 +121,16 @@ def listado_entregas():
 # ==========================================
 @app.route('/marcar-entregado/<int:id_movimiento>', methods=['POST'])
 def marcar_entregado(id_movimiento):
-    """Esta ruta se llama desde un botón para liberar el carro y la celda"""
     conn = get_db_connection()
     cur = conn.cursor()
     
     try:
-        # Obtener qué celda ocupaba este movimiento
         cur.execute("SELECT id_celda FROM movimientos WHERE id_movimiento = %s;", (id_movimiento,))
         resultado = cur.fetchone()
         
         if resultado:
             id_celda = resultado[0]
-            # Liberar la celda
             cur.execute("UPDATE celdas SET estado = 'libre' WHERE id_celda = %s;", (id_celda,))
-            # Finalizar el movimiento
             cur.execute("UPDATE movimientos SET estado_movimiento = 'devuelto' WHERE id_movimiento = %s;", (id_movimiento,))
             conn.commit()
     except Exception as e:
@@ -152,7 +147,6 @@ def marcar_entregado(id_movimiento):
 # ==========================================
 @app.route('/api/alertas')
 def api_alertas():
-    """Endpoint consumido por JavaScript en segundo plano para notificar entregas"""
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     
@@ -169,7 +163,6 @@ def api_alertas():
     cur.close()
     conn.close()
     
-    # Retorna un JSON para que JavaScript pueda leerlo fácilmente
     return jsonify({
         "hay_entregas": len(pendientes) > 0,
         "cantidad": len(pendientes),
