@@ -168,6 +168,16 @@ def api_alertas():
         "cantidad": len(pendientes),
         "vehiculos": pendientes
     })
-
+# ==========================================
+# RUTA SECRETA PARA INSTALAR LA BASE DE DATOS
+# ==========================================
+@app.route('/instalar')
+def instalar_base_datos():
+    try:
+        from init_db import inicializar_base_de_datos
+        inicializar_base_de_datos()
+        return "<h1>¡Éxito! Base de datos instalada.</h1><br><a href='/'>Ir al mapa del parqueadero</a>"
+    except Exception as e:
+        return f"<h1>Error al instalar:</h1><p>{e}</p>"
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5050)
